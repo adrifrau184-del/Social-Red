@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Conecta con tus amigos, comparte ideas y descubre nuevas comunidades." />
+  <title>Conecta — Tu comunidad</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #182230;
+      --muted: #778196;
+      --line: #e7ebf2;
+      --primary: #6558f5;
+      --primary-dark: #5144db;
+      --soft: #eeecff;
+      --radius: 20px;
+      --shadow: 0 8px 30px rgba(28, 39, 74, .06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      height: 76px; background: rgba(255,255,255,.94); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 5vw;
+      position: sticky; top: 0; z-index: 5; backdrop-filter: blur(12px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; font-size: 1.35rem; letter-spacing: -.7px; }
+    .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 13px; background: var(--primary); color: white; font-size: 1.2rem; }
+    .search { width: min(38vw, 430px); background: #f4f5fa; border: 1px solid transparent; border-radius: 13px; padding: 12px 16px; outline: none; }
+    .search:focus { border-color: #c7c2ff; background: white; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn { border: 1px solid var(--line); background: white; width: 42px; height: 42px; border-radius: 14px; font-size: 1.1rem; }
+    .avatar { display: inline-grid; place-items: center; flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg,#ffb86c,#ff6b9a); color: white; font-weight: 800; }
+    .layout { width: min(1320px, 92vw); margin: 30px auto; display: grid; grid-template-columns: 230px minmax(0, 1fr) 285px; gap: 24px; align-items: start; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .sidebar { padding: 18px 12px; position: sticky; top: 98px; }
+    .nav-item { display: flex; gap: 13px; align-items: center; padding: 13px 14px; border-radius: 13px; color: #626d82; text-decoration: none; font-weight: 650; margin: 3px 0; }
+    .nav-item span:first-child { width: 24px; text-align: center; font-size: 1.12rem; }
+    .nav-item.active, .nav-item:hover { background: var(--soft); color: var(--primary); }
+    .nav-label { color: #a0a8b7; font-size: .72rem; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 800; padding: 22px 14px 7px; }
+    .community-card { margin: 20px 4px 0; padding: 16px; border-radius: 16px; background: linear-gradient(145deg,#6f63f6,#9c75ff); color: white; }
+    .community-card p { color: #eeebff; font-size: .85rem; line-height: 1.5; }
+    .community-card button { border: 0; background: white; color: var(--primary); font-weight: 750; border-radius: 10px; padding: 10px 12px; width: 100%; }
+    .feed { min-width: 0; }
+    .welcome { padding: 24px 26px; margin-bottom: 20px; background: linear-gradient(110deg,#fff 45%,#f0eeff); }
+    .welcome h1 { font-size: clamp(1.45rem, 2.5vw, 2rem); margin: 0 0 8px; letter-spacing: -1px; }
+    .welcome p { margin: 0; color: var(--muted); }
+    .composer { padding: 20px; margin-bottom: 20px; }
+    .composer-top { display: flex; gap: 12px; align-items: flex-start; }
+    .composer textarea { flex: 1; resize: vertical; min-height: 58px; border: 1px solid var(--line); background: #fafbfe; border-radius: 14px; padding: 14px; outline: none; }
+    .composer textarea:focus { border-color: #c7c2ff; }
+    .composer-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; gap: 10px; }
+    .subtle { color: var(--muted); font-size: .86rem; }
+    .primary-btn { border: 0; border-radius: 12px; background: var(--primary); color: white; font-weight: 750; padding: 11px 18px; transition: .2s; }
+    .primary-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .stories { display: flex; gap: 14px; overflow-x: auto; padding: 17px; margin-bottom: 20px; }
+    .story { min-width: 72px; text-align: center; font-size: .78rem; color: #626d82; }
+    .story-ring { width: 60px; height: 60px; margin: 0 auto 7px; padding: 3px; border-radius: 50%; background: linear-gradient(135deg,#f8a65b,#7659f6,#ed66a6); }
+    .story-ring .avatar { width: 100%; height: 100%; border: 3px solid white; font-size: 1rem; }
+    .post { padding: 21px; margin-bottom: 20px; }
+    .post-head { display: flex; align-items: center; gap: 11px; }
+    .post-person { min-width: 0; flex: 1; }
+    .post-person strong { display: block; font-size: .95rem; }
+    .post-person span { color: var(--muted); font-size: .79rem; display: block; margin-top: 3px; }
+    .more { color: var(--muted); border: 0; background: transparent; font-size: 1.3rem; }
+    .post-text { line-height: 1.65; margin: 17px 0; color: #424d60; }
+    .post-art { min-height: 230px; border-radius: 16px; display: grid; place-items: center; overflow: hidden; position: relative; }
+    .art-one { background: radial-gradient(circle at 25% 20%,#ffdb9c,transparent 28%), linear-gradient(135deg,#a7d9ce,#6173b8 55%,#252d5b); }
+    .art-two { background: radial-gradient(circle at 75% 30%,#ffcae0,transparent 28%), linear-gradient(135deg,#f5c5a5,#f07e84 48%,#7e4da0); }
+    .art-content { text-align: center; color: white; padding: 25px; text-shadow: 0 2px 18px #28304b55; }
+    .art-content .big { display: block; font-size: clamp(2rem,5vw,3.7rem); font-weight: 900; letter-spacing: -2px; }
+    .art-content .small { font-size: .9rem; letter-spacing: 3px; text-transform: uppercase; }
+    .post-stats { display: flex; justify-content: space-between; color: var(--muted); font-size: .82rem; padding: 14px 2px 11px; border-bottom: 1px solid var(--line); }
+    .post-actions { display: flex; gap: 8px; padding-top: 12px; }
+    .action-btn { flex: 1; background: transparent; border: 0; border-radius: 10px; padding: 10px 5px; color: #7a8497; font-weight: 650; }
+    .action-btn:hover, .action-btn.liked { color: #e34d83; background: #fff0f5; }
+    .right-col { display: grid; gap: 20px; position: sticky; top: 98px; }
+    .right-panel { padding: 20px; }
+    .panel-title { margin: 0 0 16px; font-size: 1rem; letter-spacing: -.2px; }
+    .trend { display: flex; justify-content: space-between; gap: 10px; margin: 15px 0; }
+    .trend strong { display: block; font-size: .9rem; }
+    .trend span { display: block; font-size: .78rem; color: var(--muted); margin-top: 4px; }
+    .trend b { color: var(--primary); font-size: .8rem; }
+    .friend { display: flex; align-items: center; gap: 10px; margin: 15px 0; }
+    .friend .avatar { width: 39px; height: 39px; font-size: .8rem; }
+    .friend-info { flex: 1; min-width: 0; }
+    .friend-info strong { display: block; font-size: .86rem; }
+    .friend-info span { display: block; font-size: .76rem; color: var(--muted); margin-top: 3px; }
+    .follow { background: var(--soft); color: var(--primary); border: 0; border-radius: 9px; padding: 8px 10px; font-size: .78rem; font-weight: 800; }
+    footer { color: #9aa2b1; font-size: .76rem; line-height: 1.8; padding: 4px 8px; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 20px); opacity: 0; background: #20263a; color: white; padding: 12px 18px; border-radius: 12px; box-shadow: var(--shadow); transition: .25s; z-index: 10; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-width: 1050px) {
+      .layout { grid-template-columns: 205px minmax(0,1fr); }
+      .right-col { display: none; }
+    }
+    @media (max-width: 700px) {
+      .topbar { height: 66px; padding: 0 4vw; gap: 12px; }
+      .brand { font-size: 1.1rem; }
+      .brand-mark { width: 34px; height: 34px; }
+      .search { width: 100%; min-width: 0; padding: 10px 12px; }
+      .top-actions .icon-btn { display: none; }
+      .layout { display: block; width: 92vw; margin: 18px auto; }
+      .sidebar { position: static; display: flex; overflow-x: auto; padding: 8px; margin-bottom: 16px; }
+      .nav-item { flex: 0 0 auto; padding: 11px; }
+      .nav-item span:last-child, .nav-label, .community-card { display: none; }
+      .welcome { padding: 20px; }
+      .composer, .post { padding: 16px; }
+      .post-art { min-height: 190px; }
+      .stories { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">✦</span> conecta</div>
+    <input class="search" id="searchInput" type="search" placeholder="Buscar personas, temas..." aria-label="Buscar publicaciones" />
+    <div class="top-actions">
+      <button class="icon-btn" aria-label="Notificaciones" id="notificationsBtn">♧</button>
+      <div class="avatar" title="Tu perfil">TÚ</div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar panel" aria-label="Navegación principal">
+      <a class="nav-item active" href="#inicio"><span>⌂</span><span>Inicio</span></a>
+      <a class="nav-item" href="#explorar"><span>⌕</span><span>Explorar</span></a>
+      <a class="nav-item" href="#mensajes"><span>✉</span><span>Mensajes</span></a>
+      <a class="nav-item" href="#guardados"><span>♡</span><span>Guardados</span></a>
+      <a class="nav-item" href="#perfil"><span>♙</span><span>Mi perfil</span></a>
+      <div class="nav-label">Tu espacio</div>
+      <a class="nav-item" href="#grupos"><span>♧</span><span>Comunidades</span></a>
+      <a class="nav-item" href="#eventos"><span>▦</span><span>Eventos</span></a>
+      <div class="community-card">
+        <strong>¡Tu gente te espera!</strong>
+        <p>Únete a comunidades y encuentra personas con tus mismos intereses.</p>
+        <button id="discoverBtn">Descubrir grupos ↗</button>
+      </div>
+    </aside>
+
+    <section class="feed" id="inicio">
+      <section class="welcome panel">
+        <h1>¡Hola! Qué bueno verte 👋</h1>
+        <p>Este es tu rincón para compartir, descubrir y conectar.</p>
+      </section>
+
+      <section class="stories panel" aria-label="Historias">
+        <div class="story"><div class="story-ring"><div class="avatar" style="background:#6558f5">+</div></div><span>Tu historia</span></div>
+        <div class="story"><div class="story-ring"><div class="avatar" style="background:#eaa16b">LM</div></div><span>Lucía M.</span></div>
+        <div class="story"><div class="story-ring"><div class="avatar" style="background:#4aa79a">DR</div></div><span>Diego R.</span></div>
+        <div class="story"><div class="story-ring"><div class="avatar" style="background:#cb75b5">SA</div></div><span>Sofía A.</span></div>
+        <div class="story"><div class="story-ring"><div class="avatar" style="background:#6479c9">MN</div></div><span>Mario N.</span></div>
+        <div class="story"><div class="story-ring"><div class="avatar" style="background:#df8069">CL</div></div><span>Carla L.</span></div>
+      </section>
+
+      <form class="composer panel" id="postForm">
+        <div class="composer-top">
+          <div class="avatar">TÚ</div>
+          <textarea id="postText" maxlength="500" placeholder="¿Qué te gustaría compartir hoy?" aria-label="Escribe una publicación" required></textarea>
+        </div>
+        <div class="composer-bottom">
+          <span class="subtle">✦ Comparte algo positivo con tu comunidad</span>
+          <button class="primary-btn" type="submit">Publicar ↗</button>
+        </div>
+      </form>
+
+      <div id="posts">
+        <article class="post panel" data-search="lucia montes naturaleza montaña aire libre aventura">
+          <div class="post-head">
+            <div class="avatar" style="background:linear-gradient(135deg,#f6b26b,#f16f83)">LM</div>
+            <div class="post-person"><strong>Lucía Montes</strong><span>Hace 18 minutos · 🌍 Público</span></div>
+            <button class="more" aria-label="Más opciones">···</button>
+          </div>
+          <p class="post-text">A veces, todo lo que necesitamos es salir un rato, respirar aire fresco y recordar lo bonito que es el mundo. 🌿 ¿Cuál es vuestro lugar favorito para desconectar?</p>
+          <div class="post-art art-one"><div class="art-content"><span class="small">respira · explora · vive</span><span class="big">Vuelve a lo simple.</span><span>La aventura empieza aquí</span></div></div>
+          <div class="post-stats"><span class="likes-count">♡ 128 me gusta</span><span>24 comentarios · 8 compartidos</span></div>
+          <div class="post-actions"><button class="action-btn like-btn">♡ Me gusta</button><button class="action-btn comment-btn">▤ Comentar</button><button class="action-btn share-btn">↗ Compartir</button></div>
+        </article>
+
+        <article class="post panel" data-search="diego romero creatividad ideas diseño inspiración">
+          <div class="post-head">
+            <div class="avatar" style="background:linear-gradient(135deg,#59b5a6,#3e7eac)">DR</div>
+            <div class="post-person"><strong>Diego Romero</strong><span>Hace 1 hora · 🌍 Público</span></div>
+            <button class="more" aria-label="Más opciones">···</button>
+          </div>
+          <p class="post-text">Pequeño recordatorio del día: no necesitas tenerlo todo resuelto para empezar. Da el primer paso y ve aprendiendo por el camino. 💜</p>
+          <div class="post-art art-two"><div class="art-content"><span class="small">una idea cada día</span><span class="big">Crea tu camino.</span><span>Tu imaginación no tiene límites</span></div></div>
+          <div class="post-stats"><span class="likes-count">♡ 86 me gusta</span><span>13 comentarios · 5 compartidos</span></div>
+          <div class="post-actions"><button class="action-btn like-btn">♡ Me gusta</button><button class="action-btn comment-btn">▤ Comentar</button><button class="action-btn share-btn">↗ Compartir</button></div>
+        </article>
+      </div>
+      <p id="emptyState" class="subtle" style="display:none;text-align:center;padding:20px">No hay publicaciones que coincidan con tu búsqueda.</p>
+    </section>
+
+    <aside class="right-col">
+      <section class="right-panel panel" id="explorar">
+        <h2 class="panel-title">🔥 Tendencias</h2>
+        <div class="trend"><div><strong>#VidaCreativa</strong><span>Arte y creatividad</span></div><b>2,4 mil</b></div>
+        <div class="trend"><div><strong>#PequeñasAventuras</strong><span>Viajes y naturaleza</span></div><b>1,8 mil</b></div>
+        <div class="trend"><div><strong>#AprenderJuntos</strong><span>Comunidad</span></div><b>960</b></div>
+        <div class="trend"><div><strong>#IdeasQueInspiran</strong><span>Inspiración</span></div><b>742</b></div>
+      </section>
+      <section class="right-panel panel">
+        <h2 class="panel-title">✨ Personas que quizá conozcas</h2>
+        <div class="friend"><div class="avatar" style="background:#d98b70">SA</div><div class="friend-info"><strong>Sofía Álvarez</strong><span>Diseñadora · 4 amigos</span></div><button class="follow">Seguir</button></div>
+        <div class="friend"><div class="avatar" style="background:#7c86cf">MN</div><div class="friend-info"><strong>Mario Núñez</strong><span>Fotógrafo · 2 amigos</span></div><button class="follow">Seguir</button></div>
+        <div class="friend"><div class="avatar" style="background:#56a995">CL</div><div class="friend-info"><strong>Carla López</strong><span>Amante de los libros</span></div><button class="follow">Seguir</button></div>
+      </section>
+      <footer>Acerca de · Privacidad · Normas de la comunidad<br>© 2026 Conecta. Hecho para compartir.</footer>
+    </aside>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function notify(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    document.getElementById('postForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const field = document.getElementById('postText');
+      const message = field.value.trim();
+      if (!message) return;
+      const article = document.createElement('article');
+      article.className = 'post panel';
+      article.dataset.search = message.toLowerCase() + ' tú';
+      const head = document.createElement('div');
+      head.className = 'post-head';
+      head.innerHTML = '<div class="avatar">TÚ</div><div class="post-person"><strong>Tú</strong><span>Ahora mismo · 🌍 Público</span></div>';
+      const paragraph = document.createElement('p');
+      paragraph.className = 'post-text';
+      paragraph.textContent = message;
+      const stats = document.createElement('div');
+      stats.className = 'post-stats';
+      stats.innerHTML = '<span class="likes-count">♡ 0 me gusta</span><span>0 comentarios · 0 compartidos</span>';
+      const actions = document.createElement('div');
+      actions.className = 'post-actions';
+      actions.innerHTML = '<button class="action-btn like-btn">♡ Me gusta</button><button class="action-btn comment-btn">▤ Comentar</button><button class="action-btn share-btn">↗ Compartir</button>';
+      article.append(head, paragraph, stats, actions);
+      document.getElementById('posts').prepend(article);
+      field.value = '';
+      bindPostActions(article);
+      filterPosts();
+      notify('¡Tu publicación se ha añadido al inicio!');
+    });
+
+    function bindPostActions(scope = document) {
+      scope.querySelectorAll('.like-btn').forEach(button => {
+        if (button.dataset.bound) return;
+        button.dataset.bound = 'true';
+        button.addEventListener('click', () => {
+          const liked = button.classList.toggle('liked');
+          button.textContent = liked ? '♥ Te gusta' : '♡ Me gusta';
+          const count = button.closest('.post').querySelector('.likes-count');
+          let value = Number((count.textContent.match(/\d+/) || ['0'])[0]);
+          value += liked ? 1 : -1;
+          count.textContent = `♡ ${Math.max(0, value)} me gusta`;
+        });
+      });
+      scope.querySelectorAll('.comment-btn').forEach(button => {
+        if (button.dataset.bound) return;
+        button.dataset.bound = 'true';
+        button.addEventListener('click', () => {
+          const comment = prompt('Escribe tu comentario:');
+          if (comment && comment.trim()) notify('Comentario preparado: ' + comment.trim().slice(0, 45));
+        });
+      });
+      scope.querySelectorAll('.share-btn').forEach(button => {
+        if (button.dataset.bound) return;
+        button.dataset.bound = 'true';
+        button.addEventListener('click', async () => {
+          const text = button.closest('.post').querySelector('.post-text')?.textContent || 'Mira esta publicación en Conecta';
+          try {
+            if (navigator.share) await navigator.share({ title: 'Conecta', text });
+            else if (navigator.clipboard) { await navigator.clipboard.writeText(text); notify('Texto copiado para compartir.'); }
+            else notify('¡Comparte esta publicación con tus amigos!');
+          } catch (error) { if (error.name !== 'AbortError') notify('No se pudo compartir en este momento.'); }
+        });
+      });
+    }
+    bindPostActions();
+
+    function filterPosts() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('#posts .post').forEach(post => {
+        const matches = (post.dataset.search || post.textContent).toLowerCase().includes(query);
+        post.style.display = matches ? '' : 'none';
+        if (matches) visible++;
+      });
+      document.getElementById('emptyState').style.display = visible ? 'none' : 'block';
+    }
+    document.getElementById('searchInput').addEventListener('input', filterPosts);
+    document.querySelectorAll('.follow').forEach(button => button.addEventListener('click', () => {
+      const following = button.textContent === 'Siguiendo';
+      button.textContent = following ? 'Seguir' : 'Siguiendo';
+      button.style.background = following ? 'var(--soft)' : '#e9f8f1';
+      button.style.color = following ? 'var(--primary)' : '#21845a';
+      notify(following ? 'Has dejado de seguir a esta persona.' : '¡Ahora sigues a esta persona!');
+    }));
+    document.getElementById('discoverBtn').addEventListener('click', () => {
+      document.getElementById('explorar').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      notify('¡Explora las tendencias y encuentra tu comunidad!');
+    });
+    document.getElementById('notificationsBtn').addEventListener('click', () => notify('Estás al día. No tienes notificaciones nuevas.'));
+    document.querySelectorAll('.nav-item').forEach(link => link.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      link.classList.add('active');
+      if (link.getAttribute('href') !== '#inicio') notify('Esta sección es una demo visual.');
+    }));
+  </script>
+</body>
+</html>
